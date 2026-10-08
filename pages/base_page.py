@@ -1,6 +1,6 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
 from config.config import TIMEOUT
 
 
@@ -37,7 +37,12 @@ class BasePage:
     def is_displayed(self, locator: tuple) -> bool:
         try:
             return self.find_visible(locator).is_displayed()
-        except TimeoutException:
+        except (TimeoutException, StaleElementReferenceException):
+            try:
+                return self.find_visible(locator).is_displayed()
+            except Exception:
+                return False
+        except Exception:
             return False
 
     def get_title(self) -> str:
